@@ -11,7 +11,7 @@ from .schemas import ChatTurn
 from .config import settings
 
 PMRAG = FastAPI(title="RAG Backend", version="1.0.0")
-PMRAG.mount("/static", StaticFiles(directory="app/static"), name="static")
+PMRAG.mount("/static", StaticFiles(directory="RAG/static"), name="static")
 
 PMRAG.include_router(ingest.router)
 PMRAG.include_router(rag.router)
@@ -23,7 +23,7 @@ def health():
 
 @PMRAG.get("/ui", response_class=HTMLResponse)
 def serve_ui():
-    return FileResponse("app/static/ui.html")
+    return FileResponse("RAG/static/ui.html")
 
 @PMRAG.post("/ui/rag")
 async def ui_rag(request: Request):
