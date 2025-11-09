@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RAG Backend UI Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2em; }
+        textarea { width: 100%; height: 100px; }
+        select, button { margin-top: 1em; }
+        .result { margin-top: 2em; padding: 1em; border: 1px solid #ccc; background: #f9f9f9; }
+    </style>
+</head>
+<body>
+    <h1>PalmMind RAG Backend Test UI Simple</h1>
+    <form id="rag-form" enctype="multipart/form-data">
+        <label for="file-input">Upload PDF or TXT file:</label><br>
+        <input type="file" id="file-input" name="file" accept=".pdf,.txt" required><br>
+        <label for="chunking">Chunking Strategy:</label>
+        <select id="chunking" name="chunking">
+            <option value="fixed with overlapping">Fixed</option>
+            <option value="by_sentence">By Sentence</option>
+        </select><br>
+        <button type="submit">Submit</button>
+    </form>
+    <div class="result" id="result"></div>
+
+    <hr style="margin:2em 0;">
+    <h2>Chat with the Bot</h2>
+    <form id="chat-form">
+        <label for="chat-input">Your Message:</label><br>
+        <input type="text" id="chat-input" name="chat-input" style="width:80%;" required>
+        <button type="submit">Send</button>
+    </form>
+    <div class="result" id="chat-result" style="white-space:pre-wrap;"></div>
+
+    <script>
+        document.getElementById('rag-form').onsubmit = async function(e) {
+            e.preventDefault();
+            const fileInput = document.getElementById('file-input');
+            const chunking = document.getElementById('chunking').value;
+            if (!fileInput.files.length) {
+                alert('Please select a file.');
+                return;
+            }
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('chunking_strategy', chunking);
+            document.getElementById('result').innerText = 'Processing...';
+            const resp = await fetch('/ingest', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await resp.json();
+            document.getElementById('result').innerText = JSON.stringify(data, null, 2);
+        };
+
+        document.getElementById('chat-form').onsubmit = async function(e) {
+            e.preventDefault();
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+            document.getElementById('chat-result').innerText = '...';
+        
+            const resp = await fetch('/ui/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message })
+            });
+            const data = await resp.json();
+            document.getElementById('chat-result').innerText = data.response || JSON.stringify(data);
+            input.value = '';
+        };
+    </script>
+</body>   
+</html>
