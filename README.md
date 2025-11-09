@@ -4,7 +4,7 @@
 uvicorn RAG.main:PMRAG --reload
 
 # url 
-localhost/ui](http://127.0.0.1:8000/ui
+http://127.0.0.1:8000/ui
 
 # Setup .env file
 DATABASE_URL=
